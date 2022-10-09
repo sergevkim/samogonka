@@ -1,9 +1,10 @@
 name: py310
 dependencies:
   - python=3.10
+  - einops=0.4.1
   - ipykernel=6.16.0
   - pytorch=1.12.1
   - pytorch-lightning=1.6.5
-  - torchvision=0.13.0
   - scikit-learn=1.1.2
+  - torchvision=0.13.0
 
