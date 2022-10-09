@@ -6,7 +6,8 @@ dependencies:
   - ipykernel=6.16.0
   - ipywidgets=7.7.1
   - pytorch=1.12.1
-  - pytorch-lightning=1.6.5
+  - pytorch-lightning=1.7.7
   - scikit-learn=1.1.2
   - torchvision=0.13.0
+  - wandb=0.13.4
 
