@@ -19,11 +19,11 @@ class ResNet18Model(nn.Module):
             nn.Linear(in_features=2048, out_features=10, bias=True),
         )
 
-    def forward(self, x, input_mode: str = 'images'):
+    def forward(self, x, inputs: str = 'images'):
         features = None
-        if input_mode == 'images':
+        if inputs == 'images':
             features = self.extract_features(x)
-        elif input_mode == 'features':
+        elif inputs == 'features':
             features = x
 
         outputs = self.head(features)
