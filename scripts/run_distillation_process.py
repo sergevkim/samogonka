@@ -21,7 +21,7 @@ def main(args):
     student.fc = nn.Linear(512, 10, bias=True)
 
     teacher = ResNet50Model()
-    ckpt_filename = '/content/samogonka/checkpoints/teacher-epoch=08-val_loss=0.72.ckpt'
+    ckpt_filename = '/content/samogonka/checkpoints/teacher-epoch=34-val_accuracy=0.84.ckpt'
     teacher_state_dict = torch.load(ckpt_filename)['state_dict']
     teacher.load_state_dict(process_lightning_state_dict(teacher_state_dict))
 

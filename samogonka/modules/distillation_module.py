@@ -36,8 +36,8 @@ class DistillationModule(LightningModule):
 
     def _step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
         images, labels = batch
-        student_features = self.student.extract_features(images)
-        teacher_features = self.teacher.extract_features(images)
+        #student_features = self.student.extract_features(images)
+        #teacher_features = self.teacher.extract_features(images)
         #TODO
         #corrupted_student_features = self.corruptor(student_features)
         #student_features = self.generator(corrupted_student_features)
