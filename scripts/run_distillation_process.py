@@ -1,7 +1,9 @@
 from argparse import ArgumentParser
+from tabnanny import check
 
 import torch
-from pytorch_lightning import Trainer
+from pytorch_lightning import Trainer, seed_everything
+from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from samogonka.datamodules import CIFAR10DataModule
 from samogonka.models import ResNet18Model, ResNet50Model
@@ -10,21 +12,32 @@ from samogonka.utils.lightning import process_lightning_state_dict
 
 
 def main(args):
-    student = ResNet18Model()
+    seed_everything(9, workers=True)
 
+    student = ResNet18Model()
     teacher = ResNet50Model()
-    ckpt_filename = '/Users/sergevkim/Downloads/teacher-cifar10-epoch=03-val_loss=0.73.ckpt'
-    teacher_ckpt = torch.load(
-        ckpt_filename,
-        map_location='cpu',
-    )
-    teacher.load_state_dict(process_lightning_state_dict(teacher_ckpt['state_dict']))
+    ckpt_filename = '/content/samogonka/checkpoints/teacher-epoch=08-val_loss=0.72.ckpt'
+    teacher_state_dict = torch.load(ckpt_filename)['state_dict']
+    teacher.load_state_dict(process_lightning_state_dict(teacher_state_dict))
 
     module = DistillationModule(student=student, teacher=teacher)
     datamodule = CIFAR10DataModule()
     logger = WandbLogger(project='samogonka')
-    trainer = Trainer.from_argparse_args(args, accelerator='cpu', logger=logger)
+    checkpoint_callback = ModelCheckpoint(
+        save_top_k=3,
+        monitor='val_accuracy',
+        mode='max',
+        dirpath='checkpoints',
+        filename='student-dis-{epoch:02d}-{val_loss:.2f}',
+    )
+    trainer = Trainer.from_argparse_args(
+        args,
+        accelerator='gpu',
+        logger=logger,
+        callbacks=[checkpoint_callback],
+    )
     trainer.fit(module, datamodule=datamodule)
+    trainer.test(module, ckpt_path='best', datamodule=datamodule)
 
 
 if __name__ == '__main__':

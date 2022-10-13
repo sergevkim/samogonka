@@ -24,7 +24,7 @@ class ClassificationModule(LightningModule):
         loss = self.criterion(predicts, labels)
         accuracy = self.accuracy_metric(predicts, labels)
 
-        info = {f'loss': loss, f'accuracy': accuracy}
+        info = {'loss': loss, 'accuracy': accuracy}
 
         return info
 
