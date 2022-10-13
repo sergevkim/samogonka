@@ -18,30 +18,33 @@ class ClassificationModule(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.model(x)
 
-    def _step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
+    def _step(self, batch: Any, batch_idx: int, mode: str) -> Dict[str, Tensor]:
         images, labels = batch
         predicts = self.model(images)
         loss = self.criterion(predicts, labels)
         accuracy = self.accuracy_metric(predicts, labels)
 
-        info = {'loss': loss, 'accuracy': accuracy}
+        if mode == 'train':
+            info = {f'loss': loss, f'accuracy': accuracy}
+        else:
+            info = {f'{mode}_loss': loss, f'{mode}_accuracy': accuracy}
 
         return info
 
     def training_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
-        info = self._step(batch, batch_idx)
+        info = self._step(batch, batch_idx, mode='train')
         self.log('train', info)
 
         return info
 
     def validation_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
-        info = self._step(batch, batch_idx)
+        info = self._step(batch, batch_idx, mode='val')
         self.log('val', info)
 
         return info
 
     def test_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
-        info = self._step(batch, batch_idx)
+        info = self._step(batch, batch_idx, mode='test')
         self.log('test', info)
 
         return info

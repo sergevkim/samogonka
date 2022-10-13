@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 
 from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from samogonka.datamodules import CIFAR10DataModule
 from samogonka.models import ResNet50Model
@@ -10,9 +11,21 @@ from samogonka.modules import ClassificationModule
 def main(args):
     model = ResNet50Model()
     module = ClassificationModule(model=model)
-    datamodule = CIFAR10DataModule()
+    datamodule = CIFAR10DataModule(batch_size=512)
     logger = WandbLogger(project='samogonka')
-    trainer = Trainer.from_argparse_args(args, accelerator='cpu', logger=logger)
+    checkpoint_callback = ModelCheckpoint(
+        save_top_k=3,
+        monitor='val_loss',
+        mode='min',
+        dirpath='checkpoints',
+        filename='teacher-cifar10-{epoch:02d}-{val_loss:.2f}',
+    )
+    trainer = Trainer.from_argparse_args(
+        args,
+        accelerator='cpu',
+        logger=logger,
+        callbacks=[checkpoint_callback]
+    )
     trainer.fit(module, datamodule=datamodule)
 
 
