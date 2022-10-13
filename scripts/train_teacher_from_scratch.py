@@ -12,7 +12,7 @@ def main(args):
     seed_everything(9, workers=True)
 
     model = ResNet50Model()
-    module = ClassificationModule(model=model)
+    module = ClassificationModule(model=model, learning_rate=0.001)
     datamodule = CIFAR10DataModule(batch_size=2048)
     logger = WandbLogger(project='samogonka')
     checkpoint_callback = ModelCheckpoint(
@@ -20,11 +20,11 @@ def main(args):
         monitor='val_accuracy',
         mode='max',
         dirpath='checkpoints',
-        filename='teacher-{epoch:02d}-{val_loss:.2f}',
+        filename='teacher-{epoch:02d}-{val_accuracy:.2f}',
     )
     trainer = Trainer.from_argparse_args(
         args,
-        max_epochs=20,
+        max_epochs=40,
         accelerator='gpu',
         logger=logger,
         callbacks=[checkpoint_callback],

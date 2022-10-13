@@ -14,13 +14,23 @@ from samogonka.utils.lightning import process_lightning_state_dict
 def main(args):
     seed_everything(9, workers=True)
 
-    student = ResNet18Model()
+    #student = ResNet18Model()
+    from torchvision.models import resnet18
+    import torch.nn as nn
+    student = resnet18()
+    student.fc = nn.Linear(512, 10, bias=True)
+
     teacher = ResNet50Model()
     ckpt_filename = '/content/samogonka/checkpoints/teacher-epoch=08-val_loss=0.72.ckpt'
     teacher_state_dict = torch.load(ckpt_filename)['state_dict']
     teacher.load_state_dict(process_lightning_state_dict(teacher_state_dict))
 
-    module = DistillationModule(student=student, teacher=teacher)
+    module = DistillationModule(
+        student=student,
+        teacher=teacher,
+        alpha_coef=0.1,
+        learning_rate=0.001,
+    )
     datamodule = CIFAR10DataModule(batch_size=2048)
     logger = WandbLogger(project='samogonka')
     checkpoint_callback = ModelCheckpoint(
@@ -28,11 +38,11 @@ def main(args):
         monitor='val_accuracy',
         mode='max',
         dirpath='checkpoints',
-        filename='student-dis-{epoch:02d}-{val_loss:.2f}',
+        filename='student-dis-{epoch:02d}-{val_accuracy:.2f}',
     )
     trainer = Trainer.from_argparse_args(
         args,
-        max_epochs=20,
+        max_epochs=40,
         accelerator='gpu',
         logger=logger,
         callbacks=[checkpoint_callback],

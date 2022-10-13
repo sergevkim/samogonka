@@ -41,10 +41,13 @@ class DistillationModule(LightningModule):
         #TODO
         #corrupted_student_features = self.corruptor(student_features)
         #student_features = self.generator(corrupted_student_features)
-        distillation_loss = \
-            self.distillation_criterion(student_features, teacher_features)
+        #distillation_loss = \
+        #    self.distillation_criterion(student_features, teacher_features)
 
-        student_predicts = self.student(student_features, inputs='features')
+        teacher_predicts = self.teacher(images)
+        student_predicts = self.student(images)
+        distillation_loss = \
+            self.distillation_criterion(student_predicts, teacher_predicts)
         original_loss = self.original_criterion(student_predicts, labels)
 
         loss = original_loss + distillation_loss * self.alpha_coef
