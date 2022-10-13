@@ -28,21 +28,26 @@ class ClassificationModule(LightningModule):
 
         return info
 
+    def _log_info(self, info, prefix):
+        for k, v in info.items():
+            pp = prefix
+            self.log(pp + '/' + k, v.item())
+
     def training_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
         info = self._step(batch, batch_idx)
-        self.log('train', info)
+        self._log_info(info, 'train')
 
         return info
 
     def validation_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
         info = self._step(batch, batch_idx)
-        self.log('val', info)
+        self._log_info(info, 'val')
 
         return info
 
     def test_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
         info = self._step(batch, batch_idx)
-        self.log('test', info)
+        self._log_info(info, 'test')
 
         return info
 

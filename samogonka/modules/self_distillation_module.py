@@ -82,22 +82,3 @@ class SelfDistillationModule(ClassificationModule):
             elif 'ACC' in k:
                 pp += '/ACC'
             self.log(pp + '/' + k, v.item())
-
-    def training_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
-        info = self._step(batch, batch_idx)
-        self._log_info(info, 'train')
-
-        return info
-
-    def validation_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
-        info = self._step(batch, batch_idx)
-        self._log_info(info, 'val')
-
-        return info
-
-    def test_step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
-        info = self._step(batch, batch_idx)
-        self._log_info(info, 'test')
-
-        return info
-
