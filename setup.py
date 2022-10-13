@@ -6,7 +6,7 @@ def main():
     package_name = 'samogonka'
     packages = find_packages(package_name)
     packages = list(map(lambda x: f'{package_name}/{x}', packages))
-    reqs = []#[str(req) for req in parse_requirements(open('requirements.txt'))]
+    reqs = [str(req) for req in parse_requirements(open('requirements.txt'))]
 
     setup(
         name=package_name,
@@ -20,7 +20,7 @@ def main():
             "License :: OSI Approved :: MIT License",
             "Operating System :: OS Independent",
         ],
-        python_requires='>=3.10',
+        python_requires='>=3.7',
         install_requires=reqs,
     )
 
