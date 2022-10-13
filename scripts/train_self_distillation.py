@@ -25,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', default='resnet18', type=str)
     parser.add_argument('--batch_size', default=128, type=int)
     parser.add_argument('--num_workers', default=16, type=int)
-    parser.add_argument('--exp_name', default='baseline-resnet18', type=str)
+    parser.add_argument('--exp_name', default='self_distill-resnet18', type=str)
     parser = Trainer.add_argparse_args(parser)
     args = parser.parse_args()
     main(args)
