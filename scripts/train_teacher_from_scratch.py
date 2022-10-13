@@ -15,13 +15,14 @@ def main(args):
     logger = WandbLogger(project='samogonka')
     checkpoint_callback = ModelCheckpoint(
         save_top_k=3,
-        monitor='val_loss',
-        mode='min',
+        monitor='val_accuracy',
+        mode='max',
         dirpath='checkpoints',
-        filename='teacher-cifar10-{epoch:02d}-{val_loss:.2f}',
+        filename='teacher-{epoch:02d}-{val_loss:.2f}',
     )
     trainer = Trainer.from_argparse_args(
         args,
+        max_epochs=10,
         accelerator='gpu',
         logger=logger,
         callbacks=[checkpoint_callback]
