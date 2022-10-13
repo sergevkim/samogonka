@@ -13,7 +13,7 @@ def main(args):
 
     model = ResNet50Model()
     module = ClassificationModule(model=model)
-    datamodule = CIFAR10DataModule(batch_size=512)
+    datamodule = CIFAR10DataModule(batch_size=2048)
     logger = WandbLogger(project='samogonka')
     checkpoint_callback = ModelCheckpoint(
         save_top_k=3,
@@ -24,7 +24,7 @@ def main(args):
     )
     trainer = Trainer.from_argparse_args(
         args,
-        max_epochs=10,
+        max_epochs=20,
         accelerator='gpu',
         logger=logger,
         callbacks=[checkpoint_callback],

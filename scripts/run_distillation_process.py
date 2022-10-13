@@ -21,7 +21,7 @@ def main(args):
     teacher.load_state_dict(process_lightning_state_dict(teacher_state_dict))
 
     module = DistillationModule(student=student, teacher=teacher)
-    datamodule = CIFAR10DataModule()
+    datamodule = CIFAR10DataModule(batch_size=2048)
     logger = WandbLogger(project='samogonka')
     checkpoint_callback = ModelCheckpoint(
         save_top_k=3,
@@ -32,6 +32,7 @@ def main(args):
     )
     trainer = Trainer.from_argparse_args(
         args,
+        max_epochs=20,
         accelerator='gpu',
         logger=logger,
         callbacks=[checkpoint_callback],

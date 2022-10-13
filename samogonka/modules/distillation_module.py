@@ -14,7 +14,7 @@ class DistillationModule(LightningModule):
         student,
         teacher,
         learning_rate: float = 3e-4,
-        alpha_coef: float = 7e-5, # distillation coef
+        alpha_coef: float = 7e-4, # distillation coef
         lambda_coef: float = 0.5, # mask coef
         corruptor: Optional[Module] = None,
         generator: Optional[Module] = None,
@@ -54,6 +54,7 @@ class DistillationModule(LightningModule):
             'loss': loss,
             'distillation_loss': distillation_loss,
             'original_loss': original_loss,
+            'accuracy': accuracy,
         }
 
         return info
