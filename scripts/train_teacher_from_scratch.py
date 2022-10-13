@@ -22,7 +22,7 @@ def main(args):
     )
     trainer = Trainer.from_argparse_args(
         args,
-        accelerator='cpu',
+        accelerator='gpu',
         logger=logger,
         callbacks=[checkpoint_callback]
     )
