@@ -1,0 +1,14 @@
+exp_name: 'distiling t=1'
+
+dataset:
+  _target_: data.DenoiserDataModule
+  dataset_path: '/root/hse_distil/datasets'
+  batch_size: 256
+
+model:
+  _target_: train.Model
+  is_distiling: true
+  training_model_type: 'resnet50'
+  learning_rate: 1e-3
+  teacher_path: '/root/hse_distil/ckpts/epoch=23-step=4704.ckpt' # 0.7 acc
+  temperature: 10
