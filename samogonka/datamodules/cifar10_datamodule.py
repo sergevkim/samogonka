@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 import albumentations as A
 import numpy as np
@@ -13,18 +13,18 @@ from torchvision.datasets import CIFAR10
 class CIFAR10Dataset(Dataset):
     def __init__(
         self,
-        subset: Subset,
+        raw_cifar: Union[CIFAR10, Subset], # CIFAR10 or subset of it
         transform: Optional[Callable] = None,
     ) -> None:
         super().__init__()
-        self.subset = subset
+        self.raw_cifar = raw_cifar
         self.transform = transform
 
     def __len__(self) -> int:
-        return len(self.subset)
+        return len(self.raw_cifar)
 
     def __getitem__(self, idx):
-        image, label = self.subset[idx]
+        image, label = self.raw_cifar[idx]
         # be careful! image is not a numpy array
 
         if self.transform is not None:
@@ -39,13 +39,13 @@ class CIFAR10DataModule(LightningDataModule):
     def __init__(
         self,
         data_dir: str = './data/',
-        batch_size: int = 8,
+        batch_size: int = 128,
         num_workers: int = 4,
         shuffle: bool = False,
         train_transforms: Optional[Callable] = None,
         val_transforms: Optional[Callable] = None,
         test_transforms: Optional[Callable] = None,
-        val_size: float = 0.25,
+        val_size: float = 0.2,
     ) -> None:
         super().__init__()
         self.data_dir = data_dir
@@ -64,31 +64,29 @@ class CIFAR10DataModule(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None) -> None:
         if stage == 'fit' or stage is None:
-            trainval_dataset = CIFAR10(root=self.data_dir, train=True)
+            trainval_raw_dataset = CIFAR10(root=self.data_dir, train=True)
             train_indices, val_indices = train_test_split(
-                np.arange(len(trainval_dataset)),
+                np.arange(len(trainval_raw_dataset)),
                 test_size=self.val_size,
-            )
-            train_subset = Subset(trainval_dataset, train_indices)
-            val_subset = Subset(trainval_dataset, val_indices)
+            ) # TODO stratify
+            train_raw_subset = Subset(trainval_raw_dataset, train_indices)
+            val_raw_subset = Subset(trainval_raw_dataset, val_indices)
 
             train_transforms = self.default_transforms() \
                 if self.train_transforms is None else self.train_transforms
             val_transforms = self.default_transforms() \
                 if self.val_transforms is None else self.val_transforms
             self.train_dataset = \
-                CIFAR10Dataset(train_subset, transform=train_transforms)
+                CIFAR10Dataset(train_raw_subset, transform=train_transforms)
             self.val_dataset = \
-                CIFAR10Dataset(val_subset, transform=val_transforms)
+                CIFAR10Dataset(val_raw_subset, transform=val_transforms)
 
         if stage == 'test' or stage is None:
             test_transforms = self.default_transforms() \
                 if self.test_transforms is None else self.test_transforms
-            self.test_dataset = CIFAR10(
-                root=self.data_dir,
-                train=False,
-                transform=test_transforms,
-            )
+            test_raw_dataset = CIFAR10(root=self.data_dir, train=False)
+            self.test_dataset = \
+                CIFAR10Dataset(test_raw_dataset, transform=test_transforms)
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(

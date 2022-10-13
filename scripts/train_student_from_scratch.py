@@ -28,6 +28,7 @@ def main(args):
         callbacks=[checkpoint_callback]
     )
     trainer.fit(module, datamodule=datamodule)
+    trainer.test(module, ckpt_path='best', datamodule=datamodule)
 
 
 if __name__ == '__main__':
