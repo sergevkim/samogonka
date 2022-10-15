@@ -15,41 +15,45 @@ class DistillationModule(LightningModule):
         teacher,
         learning_rate: float = 3e-4,
         alpha_coef: float = 7e-4, # distillation coef
-        lambda_coef: float = 0.5, # mask coef
-        corruptor: Optional[Module] = None,
+        corruptor: Optional[Any] = None,
         generator: Optional[Module] = None,
+        mode: str = 'features',
     ) -> None:
         super().__init__()
         self.student = student
         self.teacher = teacher
-        # TODO corruptor architecture
         self.corruptor = corruptor
         self.generator = generator
 
         self.alpha_coef = alpha_coef
-        self.lambda_coef = lambda_coef
 
         self.original_criterion = CrossEntropyLoss()
         self.distillation_criterion = MSELoss()
         self.accuracy_metric = Accuracy()
         self.learning_rate = learning_rate
 
+        self.mode = mode
+
     def _step(self, batch: Any, batch_idx: int) -> Dict[str, Tensor]:
         images, labels = batch
-        #student_features = self.student.extract_features(images)
-        #teacher_features = self.teacher.extract_features(images)
-        #TODO
-        #corrupted_student_features = self.corruptor(student_features)
-        #student_features = self.generator(corrupted_student_features)
-        #distillation_loss = \
-        #    self.distillation_criterion(student_features, teacher_features)
 
-        teacher_predicts = self.teacher(images)
-        student_predicts = self.student(images)
-        distillation_loss = \
-            self.distillation_criterion(student_predicts, teacher_predicts)
+        if self.mode == 'features':
+            student_features = self.student.extract_features(images)
+            teacher_features = self.teacher.extract_features(images)
+
+            if self.corruptor is not None and self.generator is not None:
+                corrupted_student_features = self.corruptor(student_features)
+                student_features = self.generator(corrupted_student_features)
+            distillation_loss = \
+                self.distillation_criterion(student_features, teacher_features)
+            student_predicts = self.student(student_features, inputs='features')
+        else:  # mode == 'logits'
+            teacher_predicts = self.teacher(images)
+            student_predicts = self.student(images)
+            distillation_loss = \
+                self.distillation_criterion(student_predicts, teacher_predicts)
+
         original_loss = self.original_criterion(student_predicts, labels)
-
         loss = original_loss + distillation_loss * self.alpha_coef
         accuracy = self.accuracy_metric(student_predicts, labels)
 
