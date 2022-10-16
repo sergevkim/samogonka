@@ -1,0 +1,6 @@
+defaults:
+  - datamodule: cifar10
+  - logger: wandb
+  - model: resnet18
+  - module: classification_module
+  - trainer: lightning
