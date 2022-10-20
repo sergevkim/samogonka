@@ -10,10 +10,15 @@ class ResNet50Model(nn.Module):
         weights = None if pretrained is True else ResNet50_Weights.IMAGENET1K_V1
         model = resnet50(weights=weights)
         self.feature_extractor = nn.Sequential(*(list(model.children())[:-2]))
+        self.neck = nn.Sequential(
+            nn.Conv2d(in_channels=2048, out_channels=512, kernel_size=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(inplace=True),
+        )
         self.head = nn.Sequential(
             nn.AdaptiveAvgPool2d(output_size=(1, 1)),
             Rearrange('bs c 1 1 -> bs c'),
-            nn.Linear(in_features=2048, out_features=10, bias=True),
+            nn.Linear(in_features=512, out_features=10, bias=True),
         )
 
     def forward(self, x, inputs: str = 'images'):
