@@ -4,7 +4,6 @@ from omegaconf import DictConfig
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-
 CONFIG_NAME = 'student_from_scratch'
 
 
@@ -15,7 +14,7 @@ def main(cfg: DictConfig) -> None:
     student = instantiate(cfg.student)
     module = instantiate(cfg.module, model=student)
     datamodule = instantiate(cfg.datamodule)
-    logger = None#instantiate(cfg.logger)
+    logger = instantiate(cfg.logger)
     callbacks = [
         ModelCheckpoint(
             save_top_k=3,

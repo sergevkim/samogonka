@@ -14,7 +14,7 @@ def main(cfg: DictConfig) -> None:
     teacher = instantiate(cfg.teacher)
     module = instantiate(cfg.module, model=teacher)
     datamodule = instantiate(cfg.datamodule)
-    logger = None#instantiate(cfg.logger)
+    logger = instantiate(cfg.logger)
     callbacks = [
         ModelCheckpoint(
             save_top_k=3,
