@@ -1,0 +1,3 @@
+_target_: samogonka.models.ProjectorLayer
+channels_num: 512
+block_num: 2

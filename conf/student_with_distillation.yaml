@@ -1,6 +1,9 @@
 defaults:
+  - corruptor: mask
   - datamodule: cifar10
+  - generator: projector
   - logger: wandb
+  - module: distillation
   - student: resnet18
-  - module: classification
+  - teacher: resnet50
   - trainer: lightning

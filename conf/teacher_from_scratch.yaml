@@ -1,6 +1,6 @@
 defaults:
   - datamodule: cifar10
   - logger: wandb
-  - student: resnet18
+  - teacher: resnet50
   - module: classification
   - trainer: lightning

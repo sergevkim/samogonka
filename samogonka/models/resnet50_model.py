@@ -7,7 +7,7 @@ from torchvision.models import resnet50, ResNet50_Weights
 class ResNet50Model(nn.Module):
     def __init__(self, pretrained: bool = False):
         super().__init__()
-        weights = None if pretrained is True else ResNet50_Weights.IMAGENET1K_V1
+        weights = None #if pretrained is True else ResNet50_Weights.IMAGENET1K_V1
         model = resnet50(weights=weights)
         self.feature_extractor = nn.Sequential(*(list(model.children())[:-2]))
         self.neck = nn.Sequential(
@@ -34,5 +34,6 @@ class ResNet50Model(nn.Module):
 
     def extract_features(self, x):
         x = self.feature_extractor(x)
+        x = self.neck(x)
 
         return x
